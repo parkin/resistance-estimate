@@ -1,6 +1,6 @@
 import unittest
-from ribbon import parallel
-from ribbon import series
+from estimate import parallel
+from estimate import series
 
 
 class TestSeries(unittest.TestCase):
