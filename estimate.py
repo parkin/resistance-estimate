@@ -121,7 +121,7 @@ def calculate_r_pre(length, width, active_radius, resistivity):
     return resistivity * (length - 2.0 * active_radius) / (4.0 * active_radius)
 
 
-def calculate_ribbon_resistance(length, width, pore_diameter,
+def calculate_resistance(length, width, pore_diameter,
         pore_height, v_macro, resistivity, r_contact, ids,
         gate_slope, concentration_ratio, molecule_diameter=0.0):
     """
@@ -139,7 +139,7 @@ def calculate_ribbon_resistance(length, width, pore_diameter,
     :param concentration_ratio: Ratio of chamber concentrations Ccis/Ctrans.
     :param molecule_diameter: Diameter of the moledule, in nm. Default is dsDNA (2nm)
 
-    The ribbon looks like this.
+    The device looks like this.
 
     * Contact is the contact resistance.
     * Rout is the parallel portion on the edges of the device
@@ -166,7 +166,7 @@ def calculate_ribbon_resistance(length, width, pore_diameter,
     |                Contact               |
 
     """
-    print("\n----calculate_ribbon_resistance")
+    print("\n----calculate_resistance")
 
     active_radius = calculate_active_radius(pore_diameter, pore_height,
             concentration_ratio, v_macro, molecule_diameter, resistivity,
@@ -209,14 +209,14 @@ def calculate_ribbon_resistance(length, width, pore_diameter,
     return r_total
 
 
-def calculate_ribbon_percent_change(length, width, pore_diameter,
+def calculate_percent_change(length, width, pore_diameter,
         pore_height, v_macro, resistivity, r_contact, ids,
         gate_slope, concentration_ratio, molecule_diameter=2.0):
 
-    r_on = calculate_ribbon_resistance(length, width, pore_diameter,
+    r_on = calculate_resistance(length, width, pore_diameter,
             pore_height, v_macro, resistivity, r_contact, ids,
             gate_slope, concentration_ratio, molecule_diameter)
-    r_normal = calculate_ribbon_resistance(length, width, pore_diameter,
+    r_normal = calculate_resistance(length, width, pore_diameter,
             pore_height, v_macro, resistivity, r_contact, ids,
             gate_slope, concentration_ratio)
     print("\n")
@@ -253,7 +253,7 @@ def do():
     print("concentration_ratio: {0}".format(concentration_ratio))
     print("******************************")
 
-    ratio = calculate_ribbon_percent_change(length, width, pore_diameter,
+    ratio = calculate_percent_change(length, width, pore_diameter,
             pore_height, v_macro, resistivity, r_contact, ids,
             gate_slope, concentration_ratio, molecule_diameter)
 
