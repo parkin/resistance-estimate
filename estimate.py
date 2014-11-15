@@ -53,21 +53,21 @@ def calculate_dr(pore_diameter, pore_height, concentration_ratio,
 
     def inner_integrand(x, y):
         r = math.sqrt(x**2 + y*2)
-        return calculate_dv(r, v_macro, molecule_diameter, pore_height,
+        return resistivity + multiplier * calculate_dv(r, v_macro, molecule_diameter, pore_height,
                 pore_diameter, concentration_ratio)
 
-    def outer_integrand(y, x_lim):
+    def outer_integrand(y, y_lim):
 
-        inner_integral = quad(inner_integrand, pore_radius, x_lim,
+        inner_integral = quad(inner_integrand, pore_radius, y_lim,
                 args=(y))
 
         return 1.0 / inner_integral[0]
 
-    outer_integral = quad(outer_integrand, pore_radius, y_lim,
-            args=(x_lim))
+    outer_integral = quad(outer_integrand, pore_radius, x_lim,
+            args=(y_lim))
     print("outer_integral: {0}".format(outer_integral))
 
-    return multiplier * (1.0 / outer_integral[0])
+    return (1.0 / outer_integral[0])
 
 
 def calculate_active_radius(pore_diameter, pore_height,
@@ -104,13 +104,13 @@ def calculate_r_active(pore_diameter, pore_height,
     resistance = resistivity
 
     if 2.*x <= pore_diameter and 2.*y <= pore_diameter:
-        return resistance
+        return resistivity * y / x
 
     dr = calculate_dr(pore_diameter, pore_height, concentration_ratio, v_macro, molecule_diameter, resistivity, x, y, ids, gate_slope)
 
-    print("dr: {0:.2E}".format(dr))
+    print("dr: {0:.2E}\t\tdr/resist: {1:.2E}".format(dr, dr/resistivity))
 
-    return resistance + dr
+    return dr
 
 
 def calculate_r_out(length, width, active_radius, resistivity):
@@ -173,8 +173,11 @@ def calculate_resistance(length, width, pore_diameter,
             ids, gate_slope)
     print("Active radius: {0:.2E}".format(active_radius))
 
+    if active_radius <= 0.0:
+        return 2*r_contact + resistivity * length / width
+
     if 2*active_radius > width:
-        x = length
+        x = width
     else:
         x = active_radius
     if 2*active_radius > length:
@@ -188,7 +191,7 @@ def calculate_resistance(length, width, pore_diameter,
     print("r_active: {0:.2E}".format(r_active))
 
     # Combine the resistance parts
-    if 2*active_radius < length and active_radius > 0.0:
+    if 2*active_radius < length:
         r_pre = calculate_r_pre(length, width, active_radius, resistivity)
         print("r_pre: {0:.2E}".format(r_pre))
         r_sensitive = series(r_pre, r_active, r_pre)
@@ -222,21 +225,21 @@ def calculate_percent_change(length, width, pore_diameter,
     print("\n")
     print("r_on: {0:.2E}, r_normal: {1:.2E}".format(r_on, r_normal))
 
-    return (r_on - r_normal) / r_normal 
+    return 100.*(r_on - r_normal) / r_normal
 
 def do():
-    length = 500.
-    width = 200.
+    length = 200.
+    width = 100.
     pore_diameter = 3.0
-    pore_height = 50.
+    pore_height = 20.
     v_macro = 500.e-3
-    ids = 1.e-11
+    ids = 1.e-9
     vds = 300.e-3
     resistivity = vds / ids
-    gate_slope = 1.e-10 / 120.e-3
-    concentration_ratio = 100.
+    gate_slope = 10.e-9/74.e-3
+    concentration_ratio = 50.
     molecule_diameter = 2.
-    r_contact = 1.e6
+    r_contact = 1.e3
 
     print("******************************")
     print("length: {0} nm".format(length))
@@ -258,17 +261,17 @@ def do():
             gate_slope, concentration_ratio, molecule_diameter)
 
     print("\n------------")
-    print("Ratio: {0:.2E}".format(ratio))
+    print("on/off percent change: {0}%".format(ratio))
 
     # Plot dv
 
-    x = np.linspace(0, 1000, 100)
-    y = np.empty(100)
-    for i in range(len(x)):
-        y[i] = calculate_dv(x[i], v_macro, molecule_diameter, pore_height,
-                pore_diameter, concentration_ratio)
-    pp.plot(x, y)
-    pp.show()
+    #x = np.linspace(0, 1000, 100)
+    #y = np.empty(100)
+    #for i in range(len(x)):
+    #    y[i] = calculate_dv(x[i], v_macro, molecule_diameter, pore_height,
+    #            pore_diameter, concentration_ratio)
+    #pp.plot(x, y)
+    #pp.show()
 
 if __name__ == "__main__":
     do()
