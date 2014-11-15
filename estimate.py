@@ -28,7 +28,7 @@ def parallel(*resistances):
 def calculate_dv(r, v_macro, molecule_diameter, pore_height,
         pore_diameter, concentration_ratio):
 
-    molecule_cross_section = math.pi * (pore_diameter/2.0)**2
+    molecule_cross_section = math.pi * (molecule_diameter/2.0)**2
     numerator = 2.0 * v_macro * molecule_cross_section \
             * (4.0 * pore_height + pore_diameter) \
             * (concentration_ratio - 1.0)
